@@ -1,0 +1,9 @@
+# Consistent line endings across Windows, macOS, and Linux.
+* text=auto eol=lf
+
+# Keep the owner's source documents byte-for-byte unchanged.
+blueprint(3).md -text
+langkah-implementasi(1).md -text
+"ui-ux-spec (1).md" -text
+kajian-harga-dan-penulisan.md -text
+docs/referensi/arahan-arsitek-tahap-1.md -text

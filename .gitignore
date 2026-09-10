@@ -1,0 +1,29 @@
+# Secrets and local environment; only the empty planning template is versioned.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies and generated application output (from stage 1 onward).
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+*.log
+
+# Local provider state and private working data.
+.vercel/
+supabase/.temp/
+supabase/.branches/
+.local/
+private-data/
+backups/
+exports/
+.DS_Store
+Thumbs.db
