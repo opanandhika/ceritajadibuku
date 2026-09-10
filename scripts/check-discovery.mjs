@@ -25,6 +25,7 @@ const documentation = [
   "docs/peta-privasi.md",
   "docs/laporan-tahap-1.md",
   "docs/panduan-pilot-tahap-1.md",
+  "docs/penyesuaian-onboarding.md",
 ];
 const inputs = [
   "blueprint(3).md",

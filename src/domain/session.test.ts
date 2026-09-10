@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { createSession, recoverSession, transition, type Action, type Context } from "./session";
 import type { Scenario, Session } from "./model";
 import { simulatedResult } from "../demo/provider";
-import { initialDemo } from "../demo/seed";
+import { exampleDemo } from "../../tests/fixtures/demo";
 
 function harness(free = false, kind: Session["kind"] = "story") {
   let session = createSession("test", "Awal mimpi ke Jepang", 1, kind, free);
-  const context: Context = { credits: 150, characters: initialDemo().books[0].characters, privacyRevision: 1 };
+  const context: Context = { credits: 150, characters: exampleDemo().books[0].characters, privacyRevision: 1 };
   function act(action: Action, version = session.version) {
     const result = transition(session, action, version, context);
     context.credits -= result.charge;

@@ -23,4 +23,14 @@ export const QUESTIONS = [
   { target: "moment", text: "Momen apa yang paling kamu ingat dari pengalaman itu?" },
   { target: "detail", text: "Detail mana yang paling ingin kamu pertahankan dalam cerita ini?" },
 ] as const;
-export const SUGGESTIONS = ["Awal mimpi ke Jepang", "Perjuangan mewujudkannya", "Orang yang berkesan"];
+export const SUGGESTIONS = ["Awal sebuah mimpi", "Pengalaman yang membekas", "Seseorang yang penting"];
+
+/** Bounded mock follow-ups based only on permitted story text; unknown or mixed themes stay open-ended. */
+export function questionsFor(story: string): { target: string; text: string }[] {
+  const themes = [
+    { pattern: /\bkeluarga\b/iu, text: "Apa yang kamu lakukan dalam pengalaman keluarga itu?" },
+    { pattern: /\b(karier|karir)\b/iu, text: "Apa langkah yang kamu ambil dalam perjalanan karier itu?" },
+    { pattern: /\b(usaha|bisnis)\b/iu, text: "Apa yang kamu lakukan dalam pengalaman usaha itu?" },
+  ].filter((theme) => theme.pattern.test(story));
+  return QUESTIONS.map((question) => question.target === "action" && themes.length === 1 ? { ...question, text: themes[0].text } : question);
+}

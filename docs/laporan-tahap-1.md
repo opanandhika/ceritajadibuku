@@ -4,7 +4,11 @@
 
 Implementasi teknis mengikuti arahan arsitek yang disetujui pemilik, blueprint 1.4, panduan implementasi 1.3, UI/UX 1.0, dan kajian 1.1. **Pilot kenyamanan manusia belum dilakukan.** Status ini tidak menyatakan aplikasi produksi atau seluruh gerbang Tahap 1 selesai.
 
-## Hasil yang dapat dicoba
+## Pembaruan onboarding
+
+Arahan pemilik 10 September 2026 menghapus buku contoh dari aplikasi dan mewajibkan ruang baru kosong. Perilaku serta bukti terbaru tercatat di [penyesuaian onboarding](penyesuaian-onboarding.md). Uraian dan jumlah tes di bawah adalah baseline implementasi awal; fixture Jepang kini hanya dipakai tes secara eksplisit.
+
+## Hasil baseline awal
 
 - Buku saya, pembuatan sampai tiga buku, ringkasan, tiga pilihan momen, topik sendiri, cerita bebas, dan refleksi opsional.
 - Sesi dengan satu pertanyaan aktif, paling banyak empat pertanyaan, pertanyaan keempat menunggu tindakan, dua Lewati berhenti, serta satu pertanyaan refleksi.

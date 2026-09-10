@@ -1,6 +1,6 @@
 # CeritaJadiBuku
 
-Pendamping menulis pengalaman hidup menjadi buku. Tahap 0 selesai; **prototipe lokal Tahap 1 sudah diimplementasikan**. Pilot kenyamanan manusia masih menunggu pelaksanaan. AI, kredit, dan pembayaran memakai simulasi berlabel data contoh.
+Pendamping menulis pengalaman hidup menjadi buku. Tahap 0 selesai; **prototipe lokal Tahap 1 sudah diimplementasikan**. Pilot kenyamanan manusia masih menunggu pelaksanaan. AI, kredit, dan pembayaran memakai simulasi. Ruang buku baru selalu kosong; tidak ada buku contoh di aplikasi.
 
 ## Menjalankan
 
@@ -17,9 +17,9 @@ Untuk build optimal yang tetap dijalankan lokal, hentikan dev lalu jalankan `npm
 
 ## Mencoba alur
 
-Buka buku **Langkah Menuju Jepang** → Tambahkan cerita → pilih momen atau Langsung bercerita → kirim jawaban → tinjau draf → Gunakan di naskah. Bahan asal, usulan, dan naskah diterima terpisah. Menu Tokoh & privasi menyediakan tokoh diri, nama pena, penanda pending, dan pratinjau penyamaran. Tinjau privasi buku membuka ekspor contoh tanpa membuat Word.
+Pilih **Buat buku** dari ruang kosong → isi judul atau biarkan **Buku tanpa judul** → Tambahkan cerita → pilih saran umum, Tulis topik sendiri, atau Langsung bercerita → kirim jawaban → tinjau draf → Gunakan di naskah. Judul dapat diubah melalui **Ubah judul**. Nama pena dan nama tokoh ditentukan pengguna. Bahan asal, usulan, dan naskah diterima terpisah. Menu Tokoh & privasi menyediakan tokoh diri, nama pena, penanda pending, dan pratinjau penyamaran. Tinjau privasi buku membuka ekspor contoh tanpa membuat Word.
 
-Pengaturan demo menyediakan enam skenario provider, saldo nol/tambah contoh, gagal simpan, dan reset eksplisit. Saldo contoh mulai dari 150; tidak ada transaksi uang. Snapshot berada di `localStorage` browser yang sama, satu tab kerja. Saat gagal simpan, gunakan **Selamatkan tulisan** sebelum meninggalkan halaman. Salinan teks tersebut bukan cadangan proyek.
+Pengaturan demo menyediakan enam skenario provider, saldo nol/tambah contoh, gagal simpan, dan reset eksplisit. Saldo contoh mulai dari 150; tidak ada transaksi uang. Snapshot berada di `localStorage` dengan key `ceritajadibuku:workspace:v2`, pada browser yang sama, satu tab kerja. Pembaruan menghapus buku bawaan lama dari daftar dan mempertahankan buku lain; saldo serta riwayat simulasi dimulai ulang. Tulisan dari prototipe lama tetap dapat disalin melalui Pengaturan demo. Saat gagal simpan, gunakan **Selamatkan tulisan** sebelum meninggalkan halaman. Salinan teks tersebut bukan cadangan proyek.
 
 Gunakan data sintetis. Prototipe belum memiliki login, pemisahan pemetaan privat server, cloud, AI nyata, audio, ekspor Word, atau pembayaran Duitku. Snapshot lokal bukan penyimpanan produksi.
 
@@ -34,10 +34,11 @@ npm.cmd run build
 npm.cmd run check:discovery
 ```
 
-Tes browser memakai Google Chrome yang terpasang. Playwright dapat memulai server lokal sendiri pada port 3000. Laporan HTML ada di `playwright-report`; bukti visual pilihan ada di `docs/bukti-tahap-1`. Pemeriksaan discovery hanya memeriksa artefak dan konfigurasi, bukan pengganti tes aplikasi.
+Tes browser memakai Google Chrome yang terpasang. Playwright dapat memulai server lokal sendiri pada port 3000. Laporan HTML ada di `playwright-report`; bukti onboarding baru ada di `docs/bukti-onboarding`. Data buku sintetis hanya dimuat secara eksplisit oleh tes di `tests/fixtures`; screenshot regresi fixture ada di `docs/bukti-tahap-1`. Pemeriksaan discovery hanya memeriksa artefak dan konfigurasi, bukan pengganti tes aplikasi.
 
 ## Dokumentasi kerja
 
+- [Penyesuaian onboarding dan penghapusan buku contoh](docs/penyesuaian-onboarding.md)
 - [Laporan Tahap 1, bukti dan batas pengujian](docs/laporan-tahap-1.md)
 - [Panduan pilot manusia — belum dilakukan](docs/panduan-pilot-tahap-1.md)
 - [Discovery awal](docs/discovery.md)

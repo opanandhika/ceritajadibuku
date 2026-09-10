@@ -1,5 +1,5 @@
 import type { Book, Operation, Session } from "./model";
-import { QUESTIONS, PRODUCT } from "./product";
+import { QUESTIONS, PRODUCT, questionsFor } from "./product";
 import { allowedSources, ambiguousNames, forProvider, fromProvider, providerOutputAllowed } from "./privacy";
 
 export type ProviderResult = { action: "ask"; text: string; targets: string[] } | { action: "draft" } | { action: "written"; text: string };
@@ -19,7 +19,7 @@ function nextQuestion(session: Session) {
 export function createSession(id: string, focus: string, baseRevision: number, kind: Session["kind"] = "story", free = false, targetSectionId = "section-1"): Session {
   const question = kind === "reflection"
     ? { text: "Apa arti pengalaman ini untukmu sekarang?", target: "reflection" }
-    : { text: focus === "Awal mimpi ke Jepang" ? "Apa yang pertama kali membuatmu ingin sekolah di Jepang?" : QUESTIONS[0].text, target: "beginning" };
+    : QUESTIONS[0];
   return {
     id, focus, kind, baseRevision, targetSectionId, state: free ? "awaiting_story" : "awaiting_answer", resumeState: null,
     version: 0, input: "", inputNoAI: false, inputNoBook: false, answers: [],
@@ -172,7 +172,7 @@ export function transition(current: Session, action: Action, expectedVersion: nu
         const fallback = nextQuestion(session);
         const result = action.result;
         const known = result.action === "ask" && result.targets.length === 1
-          ? QUESTIONS.find((question) => question.target === result.targets[0] && question.text === result.text && !session.questions.some((asked) => asked.target === question.target))
+          ? questionsFor(operation.payload.join(" ")).find((question) => question.target === result.targets[0] && question.text === result.text && !session.questions.some((asked) => asked.target === question.target))
           : undefined;
         session.questions.push({ ...(known ?? fallback), id: `${session.id}:q${session.questions.length + 1}`, status: "active" });
         session.state = "awaiting_answer";

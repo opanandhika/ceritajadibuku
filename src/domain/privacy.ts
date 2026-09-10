@@ -8,6 +8,7 @@ export function replaceName(text: string, name: string, replacement: string) {
 export const publicName = (character: Character) => character.mode === "pending" ? character.placeholder : character.displayName;
 export function rememberNames(character: Character, nextName: string, nextMode: Character["mode"]): Character {
   return { ...character, mode: nextMode, displayName: nextMode === "pending" ? character.placeholder : nextName,
+    alias: nextMode === "pseudonym" ? nextName : character.alias,
     knownNames: [...new Set([...character.knownNames, character.displayName, ...(nextMode === "pending" ? [] : [nextName])].filter((name) => name.trim() && !name.startsWith("[")))],
   };
 }

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Book, Demo, Scenario, Session } from "../domain/model";
 import { transition, type Action } from "../domain/session";
 import { initialDemo } from "./seed";
-import { loadDemo, saveDemo, STORAGE_KEY } from "./storage";
+import { loadDemo, saveDemo, PREVIOUS_STORAGE_KEY } from "./storage";
 import { mockProvider } from "./provider";
 
 export function useDemo() {
@@ -13,6 +13,8 @@ export function useDemo() {
   const [ready, setReady] = useState(false);
   const [saveState, setSaveState] = useState<"loading" | "saved" | "failed">("loading");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasPrevious, setHasPrevious] = useState(false);
+  const generation = useRef(0);
   const canSave = useRef(true);
   const [scenario, setScenario] = useState<Scenario>("normal");
   const scenarioRef = useRef<Scenario>("normal");
@@ -38,7 +40,10 @@ export function useDemo() {
     Promise.resolve().then(() => {
       if (!live) return;
       let result: ReturnType<typeof loadDemo>;
-      try { result = loadDemo(window.localStorage); }
+      try {
+        setHasPrevious(window.localStorage.getItem(PREVIOUS_STORAGE_KEY) !== null);
+        result = loadDemo(window.localStorage);
+      }
       catch { result = { kind: "error", message: "Penyimpanan perangkat tidak tersedia. Tulisan hanya berada di memori sampai dapat disimpan." }; }
       if (result.kind === "ok") {
         state.current = result.value;
@@ -51,7 +56,7 @@ export function useDemo() {
       } else persist(state.current);
       setReady(true);
     });
-    return () => { live = false; };
+    return () => { live = false; generation.current += 1; };
   }, [persist]);
   useEffect(() => {
     function leave(event: BeforeUnloadEvent) {
@@ -65,9 +70,10 @@ export function useDemo() {
     const operation = session.operation;
     if (!operation || startedOperations.current.has(operation.id)) return;
     startedOperations.current.add(operation.id);
+    const startedGeneration = generation.current;
     mockProvider.run(operation, scenarioRef.current, session.questions.map((question) => question.target))
-      .then((result) => dispatchRef.current(bookId, session.id, { type: "resolve", operationId: operation.id, result }, operation.version))
-      .catch(() => dispatchRef.current(bookId, session.id, { type: "reject", operationId: operation.id }, operation.version));
+      .then((result) => { if (generation.current === startedGeneration) dispatchRef.current(bookId, session.id, { type: "resolve", operationId: operation.id, result }, operation.version); })
+      .catch(() => { if (generation.current === startedGeneration) dispatchRef.current(bookId, session.id, { type: "reject", operationId: operation.id }, operation.version); });
   }, []);
   const dispatch = useCallback((bookId: string, sessionId: string, action: Action, version?: number) => {
     const current = state.current;
@@ -89,12 +95,12 @@ export function useDemo() {
   const updateBook = useCallback((id: string, update: (book: Book) => Book) => commit((value) => ({ ...value, books: value.books.map((book) => book.id === id ? update(book) : book) })), [commit]);
   const chooseScenario = (value: Scenario) => { scenarioRef.current = value; setScenario(value); };
   const setStorageFailure = (value: boolean) => { failStorage.current = value; setSimulateStorageFailure(value); persist(state.current); };
-  const reset = (empty = false) => {
-    try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* Memory remains usable. */ }
+  const reset = () => {
+    generation.current += 1;
+    startedOperations.current.clear();
     canSave.current = true;
     setLoadError(null);
-    const next = initialDemo();
-    commit(() => empty ? { ...next, books: [], activeBookId: "" } : next);
+    commit(initialDemo);
   };
-  return { demo, ready, saveState, loadError, commit, updateBook, dispatch, scenario, chooseScenario, simulateStorageFailure, setStorageFailure, reset };
+  return { demo, ready, saveState, loadError, hasPrevious, commit, updateBook, dispatch, scenario, chooseScenario, simulateStorageFailure, setStorageFailure, reset };
 }

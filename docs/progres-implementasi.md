@@ -9,7 +9,7 @@ Diperbarui: 10 September 2026. Acuan urutan: panduan implementasi 1.3 Bagian 4â€
 | Tahap | Fokus | Prasyarat | Status | Bukti atau keluaran yang masih diperlukan |
 | --- | --- | --- | --- | --- |
 | 0 | Discovery | Blueprint, workspace | `teruji_lokal` | Inventaris, Git lokal, keputusan, peta privasi, lingkungan, dan pemeriksaan artefak; lihat hasil verifikasi |
-| 1 | Fondasi aplikasi dan prototipe | 0 | `teruji_lokal; pilot_pending` | [Laporan teknis dan bukti](laporan-tahap-1.md); 42 unit + 14 browser lulus; pilot kenyamanan belum dilakukan |
+| 1 | Fondasi aplikasi dan prototipe | 0 | `teruji_lokal; pilot_pending` | [Laporan teknis dan bukti](laporan-tahap-1.md); 52 unit + 22 skenario browser lulus; [onboarding kosong tanpa buku contoh](penyesuaian-onboarding.md); pilot kenyamanan belum dilakukan |
 | 2 | Identitas, data, dan privasi | 1 | `belum_dikerjakan` | Auth, migrasi, RLS, sumber berversi, kartu/pemetaan privat, context dry run, email Auth |
 | 3 | Sesi persisten dan refleksi | 2 | `belum_dikerjakan` | Transisi atomik, jeda/resume, batas sesi, tagihan tahap, pengaturan tokoh eksplisit |
 | 4 | Editor dan struktur buku | 2, 3 | `belum_dikerjakan` | Tiptap, revisi/usulan, susun potongan, konflik, konsistensi penyebutan |

@@ -15,7 +15,7 @@ git status --short
 
 Instalasi memakai lockfile. Server mengikat loopback 127.0.0.1; hentikan dengan Ctrl+C. Tidak perlu menyalin `.env.example`. Jika port 3000 dipakai, ikuti URL yang dicetak atau hentikan proses proyek yang memang dimaksud. Untuk build lokal gunakan `npm.cmd run build`, lalu `npm.cmd run start`. Baca [README](../README.md) dan [laporan](laporan-tahap-1.md).
 
-Snapshot browser memakai key `ceritajadibuku:demo:v1`; pilih satu tab kerja. Bila penyimpanan gagal, salin melalui Selamatkan tulisan sebelum menutup halaman. Reset demo mengganti snapshot setelah pilihan eksplisit. Memulihkan saldo demo tidak otomatis melanjutkan proses.
+Snapshot browser memakai key `ceritajadibuku:workspace:v2`; pilih satu tab kerja. Bila penyimpanan gagal, salin melalui Selamatkan tulisan sebelum menutup halaman. Kosongkan data lokal mengosongkan buku dan riwayat setelah pilihan eksplisit; tidak ada pemulihan buku contoh. Namespace lama `ceritajadibuku:demo:v1` hanya menjadi sumber migrasi pertama dan salinan penyelamatan teks. Buku bawaan ber-ID `jepang` tidak ikut ke daftar; buku buatan pengguna dipertahankan dan saldo/riwayat simulasi direset. Salin tulisan lama melalui Pengaturan demo → Salin tulisan dari prototipe sebelumnya. Snapshot lama tidak ditimpa. Rincian ada pada [penyesuaian onboarding](penyesuaian-onboarding.md). Memulihkan saldo demo tidak otomatis melanjutkan proses.
 
 ## Pemetaan environment yang direncanakan
 
@@ -39,7 +39,7 @@ APP_ENV, empat *_PROVIDER, serta ENABLE_TESTER_GRANTS dibaca validator startup. 
 
 ## Pemisahan lingkungan
 
-Development memakai fixture sintetis. Staging memakai database/storage/account provider uji tersendiri. Production memakai kredensial, domain, callback, bucket, serta anggaran tersendiri. Tidak ada ketiganya yang otomatis ditautkan hanya karena CLI tersedia di mesin.
+Aplikasi development mulai dengan ruang kosong. Pengujian dapat memasukkan fixture sintetis secara eksplisit. Staging memakai database/storage/account provider uji tersendiri. Production memakai kredensial, domain, callback, bucket, serta anggaran tersendiri. Tidak ada ketiganya yang otomatis ditautkan hanya karena CLI tersedia di mesin.
 
 Konfigurasi production harus gagal tertutup bila provider/secret wajib tidak valid atau mock/tester aktif. Tidak ada fallback simulasi untuk pembayaran/AI nyata yang gagal. Sebelum migrasi, periksa lingkungan dan target proyek tanpa mencetak connection string. Jangan menjalankan reset/destructive migration pada data produksi untuk pengembangan.
 

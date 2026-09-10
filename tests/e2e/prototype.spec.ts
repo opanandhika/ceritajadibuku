@@ -1,3 +1,4 @@
+import { installTestBook } from "../fixtures/browser";
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 
@@ -20,6 +21,7 @@ test.beforeEach(async ({ page }) => {
   const errors: string[] = []; browserErrors.set(page, errors);
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => { if (message.type() === "error" && /Maximum update depth|hydration/i.test(message.text())) errors.push(message.text()); });
+  await installTestBook(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Buku saya", exact: true })).toBeVisible();
 });
@@ -34,7 +36,7 @@ test("cerita cukup → usulan → naskah → refresh, dengan bukti tiga layar de
   await page.getByRole("button", { name: "Kirim jawaban", exact: true }).dblclick();
   await expect(page.getByText("Drafmu sudah tersedia", { exact: true })).toBeVisible();
   await expect(page.getByText("4 kredit contoh terpakai", { exact: true })).toBeVisible();
-  const beforeApply = await page.evaluate(() => JSON.parse(localStorage.getItem("ceritajadibuku:demo:v1")!));
+  const beforeApply = await page.evaluate(() => JSON.parse(localStorage.getItem("ceritajadibuku:workspace:v2")!));
   expect(beforeApply.books[0].sections[0].text).not.toContain("Aku menemukan sebuah buku");
   expect(beforeApply.books[0].sessions[0].answers).toHaveLength(1);
   expect(beforeApply.events).toHaveLength(1);
@@ -137,7 +139,7 @@ test("tokoh diri, pending, nama pena dan tinjauan privasi contoh", async ({ page
   await page.getByRole("button", { name: "Naskah", exact: true }).click();
   await page.getByRole("textbox", { name: "Isi naskah", exact: true }).fill("Nadia bertemu Ayu di perpustakaan.");
   await page.getByRole("button", { name: "Tinjau privasi", exact: true }).click();
-  await page.getByRole("button", { name: "Periksa naskah contoh", exact: true }).click();
+  await page.getByRole("button", { name: "Periksa naskah", exact: true }).click();
   await expect(page.getByText("2 hal perlu diselesaikan", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Buka pratinjau ekspor contoh" })).toHaveCount(0);
   await page.getByRole("button", { name: "Gunakan nama pilihan untuk ekspor contoh", exact: true }).click();
@@ -168,7 +170,7 @@ test("gagal simpan memperlihatkan pemulihan teks tanpa klaim tersimpan", async (
   await begin(page); await page.getByLabel("Jawabanmu", { exact: true }).fill("Teks dalam memori.");
   await openDemo(page); await page.getByRole("checkbox", { name: "Simulasikan penyimpanan gagal" }).check(); await closeDialog(page);
   await expect(page.locator(".save-alert")).toContainText("belum tersimpan");
-  await expect(page.getByText("Tersimpan di perangkat · Data contoh", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Tersimpan di perangkat", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Selamatkan tulisan", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Salinan tulisan", exact: true })).toHaveValue(/Teks dalam memori/);
 });

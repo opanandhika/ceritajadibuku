@@ -6,12 +6,14 @@ Fasilitator menjelaskan bahwa AI, saldo, dan pembayaran adalah simulasi, lalu me
 
 | Tugas peserta | Yang diamati |
 | --- | --- |
-| Mulai satu momen dari buku contoh | Dapat mulai tanpa melengkapi kerangka, semua tokoh atau hikmah |
+| Buat buku dari ruang kosong dan mulai satu momen | Dapat mulai tanpa judul, kerangka, semua tokoh atau hikmah; tidak menganggap aplikasi khusus satu tema |
 | Saat belum ingin menjawab, pilih tindakan; jeda dan kembali | Menemukan Lewati/jeda; mengenali sesi dan tulisan yang dipulihkan |
 | Jelaskan biaya sebelum mulai, lalu setelah hasil | Memahami batas 5, cerita bebas langsung draf 4, dan kredit contoh |
 | Tinjau usulan dan masukkan ke naskah | Dapat membedakan bahan, usulan, dan tulisan diterima |
 | Samarkan diri dan pilih nama pena berbeda | Memahami identitas akun, tokoh diri, serta nama di sampul |
 | Lanjutkan manual saat saldo nol | Tidak menganggap menulis dan membaca terkunci |
+
+Gunakan variasi tema sintetis: pengalaman keluarga, perjalanan karier, dan membangun usaha. Nama serta nama pena dipilih peserta; tidak ada buku contoh bawaan.
 
 Catat ID peserta minimum, perangkat/browser, berhasil/terhambat, bantuan yang diberikan, istilah yang membingungkan, temuan keyboard virtual, serta perbaikan yang diperlukan. Jangan merekam cerita pribadi atau identitas asli peserta di fixture proyek.
 

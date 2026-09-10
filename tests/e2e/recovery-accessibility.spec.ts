@@ -1,6 +1,7 @@
+import { installTestBook } from "../fixtures/browser";
 import { expect, test, type Page } from "@playwright/test";
 
-async function state(page: Page) { return page.evaluate(() => JSON.parse(localStorage.getItem("ceritajadibuku:demo:v1")!)); }
+async function state(page: Page) { return page.evaluate(() => JSON.parse(localStorage.getItem("ceritajadibuku:workspace:v2")!)); }
 async function demo(page: Page) { await page.getByRole("button", { name: "Pengaturan demo", exact: true }).click(); }
 async function close(page: Page) { await page.getByRole("button", { name: "Dialog tutup" }).click(); }
 async function begin(page: Page) {
@@ -8,7 +9,8 @@ async function begin(page: Page) {
   await page.getByRole("button", { name: "Tambahkan cerita", exact: true }).click();
   await page.getByRole("button", { name: "Mulai sesi — maks. 5 kredit", exact: true }).click();
 }
-test.beforeEach(async ({ page }) => { await page.goto("/"); await expect(page.getByRole("heading", { name: "Buku saya", exact: true })).toBeVisible(); });
+test.beforeEach(async ({ page }) => { await installTestBook(page);
+  await page.goto("/"); await expect(page.getByRole("heading", { name: "Buku saya", exact: true })).toBeVisible(); });
 
 test("kontras warna inti, nama pena, judul panjang, dan penyimpanan format", async ({ page }) => {
   const ratios = await page.evaluate(() => {
@@ -24,7 +26,7 @@ test("kontras warna inti, nama pena, judul panjang, dan penyimpanan format", asy
   await page.getByRole("textbox", { name: "Nama pena di sampul", exact: true }).fill("Langit Sore");
   await page.getByRole("button", { name: "Simpan nama pena", exact: true }).click();
   expect((await state(page)).books[0].characters[0].displayName).toBe("Nara");
-  await expect(page.locator(".account")).toContainText("Penulis contoh");
+  await expect(page.locator(".account")).toContainText("Penulis");
   await page.getByRole("button", { name: "Naskah", exact: true }).click();
   await page.getByRole("textbox", { name: "Judul bagian naskah", exact: true }).fill("Judul panjang yang tetap terbaca ketika pengalaman ini ditulis dari layar telepon genggam");
   await page.getByRole("textbox", { name: "Isi naskah", exact: true }).fill("Cerita dengan format yang ingin dipertahankan.");
@@ -73,12 +75,12 @@ test("pilihan no-AI menahan provider, ekspor manual boleh sampai sumber ditandai
   await page.getByRole("button", { name: "Menulis manual", exact: true }).click();
   await page.getByRole("textbox", { name: "Isi naskah", exact: true }).fill("SENTINEL cerita privat sintetis.");
   await page.getByRole("button", { name: "Tinjau privasi", exact: true }).click();
-  await page.getByRole("button", { name: "Periksa naskah contoh", exact: true }).click();
-  await expect(page.getByText("Tidak ada pelanggaran yang diketahui pada teks contoh.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Periksa naskah", exact: true }).click();
+  await expect(page.getByText("Tidak ada pelanggaran yang diketahui pada teks.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Cerita saya", exact: true }).click();
   await page.locator(".source-card").filter({ hasText: "SENTINEL" }).getByRole("checkbox", { name: "Jangan masukkan ke buku", exact: true }).check();
   await page.getByRole("button", { name: "Tinjau privasi buku", exact: true }).click();
-  await page.getByRole("button", { name: "Periksa naskah contoh", exact: true }).click();
+  await page.getByRole("button", { name: "Periksa naskah", exact: true }).click();
   await expect(page.locator(".finding")).toContainText("Jangan masukkan ke buku");
   await expect(page.getByRole("button", { name: "Buka pratinjau ekspor contoh" })).toHaveCount(0);
 });
@@ -106,7 +108,7 @@ test("keyboard, mode baca, keadaan kosong, dan layar tambahan pada lebar sempit"
     }
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await demo(page); await page.getByRole("button", { name: "Reset atau kosongkan data contoh", exact: true }).click();
+  await demo(page); await page.getByRole("button", { name: "Kosongkan data lokal", exact: true }).click();
   await page.getByRole("button", { name: "Kosongkan buku", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Buku pertamamu dimulai dari satu cerita." })).toBeVisible();
   await page.screenshot({ path: "docs/bukti-tahap-1/09-buku-kosong.png", fullPage: true, animations: "disabled" });

@@ -1,6 +1,6 @@
 import type { Operation, Scenario } from "../domain/model";
 import type { ProviderResult } from "../domain/session";
-import { QUESTIONS, words } from "../domain/product";
+import { questionsFor, words } from "../domain/product";
 
 export interface WritingProvider {
   run(operation: Operation, scenario: Scenario, askedTargets: string[]): Promise<ProviderResult>;
@@ -14,7 +14,8 @@ export function simulatedResult(operation: Operation, scenario: Scenario, askedT
   }
   if (scenario === "enough" || ((scenario === "normal" || scenario === "late") && words(operation.payload.join(" ")) >= 28)) return { action: "draft" };
   if (scenario === "stacked") return { action: "ask", text: "Apa yang terjadi dan siapa yang menemanimu?", targets: ["moment", "companion"] };
-  const question = QUESTIONS.find((item) => !askedTargets.includes(item.target)) ?? QUESTIONS[3];
+  const questions = questionsFor(operation.payload.join(" "));
+  const question = questions.find((item) => !askedTargets.includes(item.target)) ?? questions[3];
   return { action: "ask", text: question.text, targets: [question.target] };
 }
 export const mockProvider: WritingProvider = {
