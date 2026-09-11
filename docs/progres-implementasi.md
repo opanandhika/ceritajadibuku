@@ -1,6 +1,6 @@
 # Progres implementasi
 
-Diperbarui: 10 September 2026. Acuan urutan: panduan implementasi 1.3 Bagian 4–5. Tahap 0 selesai. Prototipe teknis Tahap 1 diimplementasikan setelah arahan arsitek disetujui; pilot manusia belum dilakukan.
+Diperbarui: 11 September 2026. Acuan urutan: panduan implementasi 1.3 Bagian 4–5. Tahap 0 selesai. Prototipe teknis Tahap 1 diimplementasikan setelah arahan arsitek disetujui; pilot manusia belum dilakukan.
 
 `teruji_lokal` pada Tahap 0 hanya berarti pemeriksaan discovery dan artefak lokal telah dijalankan. Tidak berarti aplikasi, RLS, AI, pembayaran, atau perlindungan identitas telah teruji.
 
@@ -9,7 +9,7 @@ Diperbarui: 10 September 2026. Acuan urutan: panduan implementasi 1.3 Bagian 4�
 | Tahap | Fokus | Prasyarat | Status | Bukti atau keluaran yang masih diperlukan |
 | --- | --- | --- | --- | --- |
 | 0 | Discovery | Blueprint, workspace | `teruji_lokal` | Inventaris, Git lokal, keputusan, peta privasi, lingkungan, dan pemeriksaan artefak; lihat hasil verifikasi |
-| 1 | Fondasi aplikasi dan prototipe | 0 | `teruji_lokal; pilot_pending` | [Laporan teknis dan bukti](laporan-tahap-1.md); 52 unit + 22 skenario browser lulus; [onboarding kosong tanpa buku contoh](penyesuaian-onboarding.md); pilot kenyamanan belum dilakukan |
+| 1 | Fondasi aplikasi dan prototipe | 0 | `teknis_siap_pilot; pilot_pending` | [Gerbang teknis terbaru](penutupan-teknis-tahap-1.md): 81 unit dan 27 E2E lulus; [onboarding kosong](penyesuaian-onboarding.md); pilot kenyamanan belum dilakukan |
 | 2 | Identitas, data, dan privasi | 1 | `belum_dikerjakan` | Auth, migrasi, RLS, sumber berversi, kartu/pemetaan privat, context dry run, email Auth |
 | 3 | Sesi persisten dan refleksi | 2 | `belum_dikerjakan` | Transisi atomik, jeda/resume, batas sesi, tagihan tahap, pengaturan tokoh eksplisit |
 | 4 | Editor dan struktur buku | 2, 3 | `belum_dikerjakan` | Tiptap, revisi/usulan, susun potongan, konflik, konsistensi penyebutan |
@@ -52,6 +52,8 @@ Tabel berikut adalah baseline historis. Cakupan kontrol simulasi Tahap 1 ada di 
 | Snapshot ekspor, metadata Word, tinjauan foto | Dipetakan | Belum | Belum |
 | Cadangan tanpa pemetaan dan pemulihan | Dipetakan | Belum | Belum |
 | Purge data identitas dan replay jurnal penghapusan | Dipetakan | Belum | Belum |
+
+Status terkini: **Tahap 1 teknis siap untuk pilot manusia; pilot_pending**. Tahap 1 belum selesai sepenuhnya.
 
 ## Langkah berikutnya
 

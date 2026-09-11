@@ -1,6 +1,6 @@
+import { captureEvidence } from "../fixtures/evidence";
 import { installTestBook } from "../fixtures/browser";
-import { expect, test, type Page } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { expect, test, type Page } from "../fixtures/test";
 
 const story = "Aku menemukan sebuah buku tentang Jepang di perpustakaan sekolah. Sepulang sekolah, aku menuliskan keinginan untuk belajar di sana. Saat itu aku belum tahu caranya. Aku lalu mulai mencari informasi dan belajar bahasa sedikit demi sedikit.";
 const evidence = "docs/bukti-tahap-1";
@@ -17,7 +17,6 @@ async function begin(page: Page, free = false) {
   await page.getByRole("button", { name: "Mulai sesi — maks. 5 kredit", exact: true }).click();
 }
 test.beforeEach(async ({ page }) => {
-  await mkdir(evidence, { recursive: true });
   const errors: string[] = []; browserErrors.set(page, errors);
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => { if (message.type() === "error" && /Maximum update depth|hydration/i.test(message.text())) errors.push(message.text()); });
@@ -28,11 +27,10 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }) => { expect(browserErrors.get(page)).toEqual([]); });
 
 test("cerita cukup → usulan → naskah → refresh, dengan bukti tiga layar desktop", async ({ page }) => {
-  await mkdir(evidence, { recursive: true });
-  await page.screenshot({ path: `${evidence}/01-buku-desktop.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/01-buku-desktop.png`, true);
   await begin(page, true);
   await page.getByLabel("Jawabanmu", { exact: true }).fill(story);
-  await page.screenshot({ path: `${evidence}/02-sesi-desktop.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/02-sesi-desktop.png`, true);
   await page.getByRole("button", { name: "Kirim jawaban", exact: true }).dblclick();
   await expect(page.getByText("Drafmu sudah tersedia", { exact: true })).toBeVisible();
   await expect(page.getByText("4 kredit contoh terpakai", { exact: true })).toBeVisible();
@@ -42,7 +40,7 @@ test("cerita cukup → usulan → naskah → refresh, dengan bukti tiga layar de
   expect(beforeApply.events).toHaveLength(1);
   await page.getByRole("button", { name: "Gunakan di naskah", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Isi naskah", exact: true })).toContainText("Aku menemukan sebuah buku");
-  await page.screenshot({ path: `${evidence}/03-editor-desktop.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/03-editor-desktop.png`, true);
   await page.reload();
   await expect(page.getByRole("textbox", { name: "Isi naskah", exact: true })).toContainText("Aku menemukan sebuah buku");
 });
@@ -85,7 +83,7 @@ test("respons terlambat setelah jeda/refresh tidak menghidupkan sesi", async ({ 
   await openDemo(page, "late"); await closeDialog(page); await begin(page);
   await page.getByLabel("Jawabanmu", { exact: true }).fill(story);
   await page.getByRole("button", { name: "Kirim jawaban", exact: true }).click();
-  await page.screenshot({ path: `${evidence}/10-proses-berjalan.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/10-proses-berjalan.png`, true);
   await page.getByRole("button", { name: "Simpan dan jeda", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Kita lanjutkan saat kamu siap." })).toBeVisible();
   await page.waitForTimeout(5300); // Explicitly cross the synthetic late-response boundary.
@@ -102,7 +100,7 @@ test("provider gagal mempertahankan jawaban dan pulih melalui tindakan pengguna"
   await page.getByLabel("Jawabanmu", { exact: true }).fill(story);
   await page.getByRole("button", { name: "Kirim jawaban", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Proses belum dapat dilanjutkan." })).toBeVisible();
-  await page.screenshot({ path: `${evidence}/08-respons-gagal.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/08-respons-gagal.png`, true);
   await expect(page.getByText("0 kredit contoh terpakai", { exact: true })).toBeVisible();
   await openDemo(page, "normal"); await closeDialog(page);
   await page.getByRole("button", { name: "Lanjutkan proses", exact: true }).click();
@@ -134,7 +132,7 @@ test("tokoh diri, pending, nama pena dan tinjauan privasi contoh", async ({ page
   await expect(page.getByRole("button", { name: /\[Penulis\] Tokoh saya/ })).toBeVisible();
   await page.getByRole("button", { name: "Lihat pratinjau", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("tokoh saya");
-  await page.screenshot({ path: `${evidence}/07-privasi-preview.png`, fullPage: false, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/07-privasi-preview.png`, false);
   await page.getByRole("button", { name: "Terapkan penyamaran — 0 kredit", exact: true }).click();
   await page.getByRole("button", { name: "Naskah", exact: true }).click();
   await page.getByRole("textbox", { name: "Isi naskah", exact: true }).fill("Nadia bertemu Ayu di perpustakaan.");
@@ -177,9 +175,9 @@ test("gagal simpan memperlihatkan pemulihan teks tanpa klaim tersimpan", async (
 
 test("tiga layar HP dan semua lebar tidak meluber", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: `${evidence}/04-buku-hp.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/04-buku-hp.png`, true);
   await begin(page); await page.getByLabel("Jawabanmu", { exact: true }).fill(story);
-  await page.screenshot({ path: `${evidence}/05-sesi-hp.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/05-sesi-hp.png`, true);
   for (const width of [320, 360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -190,7 +188,7 @@ test("tiga layar HP dan semua lebar tidak meluber", async ({ page }) => {
   await expect(page.getByText("Drafmu sudah tersedia", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Gunakan di naskah", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: `${evidence}/06-editor-hp.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/06-editor-hp.png`, true);
   for (const width of [320, 360, 390, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

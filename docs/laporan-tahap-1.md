@@ -1,100 +1,69 @@
 # Laporan implementasi Tahap 1
 
-10 September 2026 · CeritaJadiBuku · prototipe development lokal.
+Diperbarui 11 September 2026. **Tahap 1 teknis siap untuk pilot manusia; pilot_pending**. Pilot belum dilakukan dan Tahap 1 belum selesai sepenuhnya. Seluruh hasil di bawah berlaku untuk patch lokal atas HEAD f944ea2; tidak ada push, merge atau deployment dalam pekerjaan penutupan ini.
 
-Implementasi teknis mengikuti arahan arsitek yang disetujui pemilik, blueprint 1.4, panduan implementasi 1.3, UI/UX 1.0, dan kajian 1.1. **Pilot kenyamanan manusia belum dilakukan.** Status ini tidak menyatakan aplikasi produksi atau seluruh gerbang Tahap 1 selesai.
+## Hasil runtime terkini
 
-## Pembaruan onboarding
+| Area | Perilaku yang dapat dicoba |
+| --- | --- |
+| Ruang buku | Instalasi baru nol buku, satu tombol Buat buku, tiga slot untuk pengguna, judul boleh menyusul |
+| Memulai cerita | Awal sebuah mimpi, Pengalaman yang membekas, Seseorang yang penting; topik sendiri atau langsung bercerita |
+| Sesi | Satu pertanyaan aktif, maksimal empat, pertanyaan keempat menunggu, dua Lewati berhenti, refleksi opsional satu pertanyaan |
+| Biaya | Simulasi 1 kredit penggalian sekali + 4 draf; cerita bebas cukup langsung draf 4; manual tetap tersedia saat saldo nol |
+| Editor | Bahan asli, usulan, naskah diterima terpisah; revisi lama tidak menimpa tulisan terbaru; format dipertahankan |
+| Identitas | Nama pena kosong dan tokoh diri [Penulis] sampai dipilih; Atur nanti tidak mengonfirmasi nama; preview tidak memasang nama otomatis |
+| Privasi | no-AI/no-book, proyeksi penanda, pemeriksaan hasil sebelum biaya, nama lama/ambigu, review judul/naskah sebelum pratinjau ekspor |
+| Pemulihan | Input, jawaban dan draf tetap; pekerjaan terputus menunggu tindakan; hasil usang setelah jeda/reset tidak diterapkan |
+| Kredit/langganan | Aturan umum bulan kalender dan 30 hari, selalu simulasi; tidak ada periode akun tetap September–Oktober 2026 |
 
-Arahan pemilik 10 September 2026 menghapus buku contoh dari aplikasi dan mewajibkan ruang baru kosong. Perilaku serta bukti terbaru tercatat di [penyesuaian onboarding](penyesuaian-onboarding.md). Uraian dan jumlah tes di bawah adalah baseline implementasi awal; fixture Jepang kini hanya dipakai tes secara eksplisit.
+## Penyimpanan dan migrasi
 
-## Hasil baseline awal
+Key aktif **ceritajadibuku:workspace:v2**, dengan skema isi formatVersion 1. **ceritajadibuku:demo:v1** hanya legacy/recovery. Loader umum memanggil modul migrasi berversi; hanya seed yang seluruh objek mentahnya cocok fingerprint SHA-256 historis yang dikeluarkan. Buku yang sudah diedit atau hanya memiliki ID/nama sama tetap dipertahankan. Tidak ada aturan penghapusan berdasarkan satu ID atau nama.
 
-- Buku saya, pembuatan sampai tiga buku, ringkasan, tiga pilihan momen, topik sendiri, cerita bebas, dan refleksi opsional.
-- Sesi dengan satu pertanyaan aktif, paling banyak empat pertanyaan, pertanyaan keempat menunggu tindakan, dua Lewati berhenti, serta satu pertanyaan refleksi.
-- Draf otomatis ketika bahan cukup; cerita bebas cukup memakai 4 kredit contoh. Penggalian memakai 1 kredit sekali dan draf 4 kredit; plafon sesi teks 5. Jawaban, usulan, dan naskah diterima memiliki tempat penyimpanan yang berbeda.
-- Tiptap untuk naskah manual, paragraf/judul/tebal/miring/daftar/kutipan, mode baca, penambahan bagian, serta penerapan usulan setelah tindakan eksplisit. Versi lama tidak menimpa revisi manual; usulan bisa disimpan di bagian terpisah.
-- Tokoh diri Nara, nama pena Citra Senja, kartu pending, samaran/sebutan/nama asli pilihan pengguna, pratinjau penyamaran semua tokoh termasuk diri, dan pemeriksaan teks ekspor contoh. Pratinjau ekspor tidak membuat Word.
-- Salinan lokal berversi dengan ID buku/sesi. Refresh memulihkan buffer, pertanyaan, jawaban, biaya, dan usulan. Pekerjaan yang terputus menunggu tindakan lanjut; tidak otomatis memanggil provider ulang.
-- Kontrol demo: normal, cukup, singkat, pertanyaan bertumpuk, gagal, terlambat; saldo nol/tambah contoh; kegagalan simpan; reset eksplisit. Semua UI diberi label prototipe dan data contoh.
+Alias pending tanpa bukti konfirmasi dibersihkan secara generik, nama terkonfirmasi dan nama pena tetap, revisi privasi naik bila perlu, sumber/naskah tidak ditulis ulang. Saldo/riwayat simulasi legacy direset. Snapshot asal tidak pernah ditimpa/dihapus dan tersedia lewat Salin tulisan dari prototipe sebelumnya. Snapshot v2 yang sudah ada selalu diprioritaskan; data rusak tidak ditimpa. [Rincian dan batas migrasi](penyesuaian-onboarding.md).
 
-## Struktur dan batas tanggung jawab
+## Struktur implementasi
 
 | Lokasi | Tanggung jawab |
 | --- | --- |
-| `src/domain/session.ts` | Transisi murni, versi sesi, ID operasi, batas pertanyaan, biaya contoh |
-| `src/domain/privacy.ts` | Pemilihan sumber, penanda identitas, nama ambigu, proyeksi dan review teks |
-| `src/domain/manuscript.ts` | Pemeriksaan versi tujuan dan kebijakan sebelum menerapkan usulan |
-| `src/domain/model.ts` | Skema snapshot Zod dan bentuk data |
-| `src/demo/provider.ts` | Adapter deterministik tanpa HTTP/AI nyata |
-| `src/demo/storage.ts` | Pembacaan tervalidasi, pemulihan, penyimpanan dan salinan penyelamatan |
-| `src/demo/use-demo.ts` | Orkestrasi React, penyimpanan lokal, deduplikasi pekerjaan |
-| `src/components/` | Alur UI dan editor |
-| `src/lib/environment.ts`, `next.config.ts` | Validator startup, development saja |
+| src/domain/session.ts | Transisi murni, versi, batas sesi, operasi dan biaya simulasi |
+| src/domain/privacy.ts, manuscript.ts | Proyeksi/izin/temuan identitas serta penerapan naskah tanpa menimpa revisi baru |
+| src/domain/model.ts | Validasi snapshot Zod |
+| src/demo/migrations/legacy-v1.ts | Migrasi legacy konservatif dan fingerprint seed utuh |
+| src/demo/storage.ts, use-demo.ts | Penyimpanan, recovery, lifecycle async, orkestrasi React |
+| src/demo/provider.ts | Adapter deterministik tanpa HTTP atau AI nyata |
+| src/components/ | Alur UI dan Tiptap; pemecahan besar workspace.tsx ditunda |
+| src/lib/environment.ts, next.config.ts | Hanya APP_ENV=development dan mock; tester grant server nonaktif |
 
-Snapshot memakai key `ceritajadibuku:demo:v1`. `localStorage` menyimpan data contoh dan pemetaan sintetis pada browser yang sama. Ini bukan pemisahan data privat dengan autentikasi. Jangan memasukkan data sensitif nyata. Browser/tab lain tidak memiliki sinkronisasi atau arbitrasi konflik; gunakan satu tab untuk demo.
+## Hasil gerbang teknis
 
-Penggantian nama memakai satu lintasan dan nama terpanjang didahulukan. Nama lama tetap diketahui sesudah pilihan diganti. Dua tokoh berpanggilan Budi menjadi fixture ambiguitas: pekerjaan yang memuat Budi ditahan tanpa biaya sampai bahan memakai penanda yang unik, misalnya `[Tetangga]`. Aplikasi tidak memilih kartu pertama. Bahan waktu perkiraan tidak dipastikan menjadi tanggal faktual.
+Dijalankan setelah npm ci, dengan cache .next lama dibersihkan. Node 24.20.0, npm 11.19.0, Windows; browser default Playwright Chromium 153.0.8010.12 (revision 1243).
 
-`no-AI` tetap boleh disalin pengguna ke naskah manual. `no-book` menahan pemakaian di buku dan pratinjau ekspor. Demo mengecualikan keduanya dari generasi; izin konteks terpisah belum dibuat. Review hanya mengenali nama terdaftar, teks, judul, nama pena, dan relasi sumber; belum dapat membuktikan anonimitas, memeriksa foto, metadata Word, atau pemetaan privat produksi.
-
-Biaya merupakan simulasi pada snapshot browser. Belum ada reserve/capture/release, ledger transaksional, langganan aktif, grant tester server, maupun pembelian. Penambahan saldo contoh tidak memulai ulang pekerjaan tertahan.
-
-## Pemeriksaan nyata
-
-Pemeriksaan dijalankan pada Node 24.20.0, npm 11.19.0, Windows, dan Google Chrome terpasang. Bukti dari eksekusi yang gagal juga dipakai memperbaiki implementasi: pembaruan berulang Tiptap diperbaiki dengan perubahan mode tanpa memancarkan perubahan konten; review kode memperbaiki nama lama, judul buku, keluaran provider terlarang, nama ambigu, dan pemeliharaan format.
-
-| Pemeriksaan | Hasil akhir |
+| Gerbang | Hasil aktual |
 | --- | --- |
-| HTTP `http://127.0.0.1:3000` | 200, halaman lokal dapat dibuka |
-| `npm.cmd run test:unit` | Lulus: 42 tes, 4 berkas, kode keluar 0 |
-| `npm.cmd run typecheck` | Lulus, kode keluar 0 |
-| `npm.cmd run lint` | Lulus, kode keluar 0 |
-| `npm.cmd run build` | Lulus: build optimal Next.js, pemeriksaan TypeScript dan prerender, kode keluar 0 |
-| `npm.cmd run test:e2e` | Lulus akhir: 14 skenario, 3,2 menit, kode keluar 0; screenshot diperbarui dan ditinjau |
-| `npm.cmd run check:discovery` | Lulus: artefak, 44 tautan lokal, dan template tanpa rahasia; kode keluar 0 |
-| Integritas empat dokumen sumber | Lulus: 4/4 hash SHA-256 sesuai baseline Tahap 0; salinan arahan arsitek identik |
+| npm ci | Lulus, exit 0; 429 paket terpasang |
+| npm run typecheck | Lulus, exit 0; typegen dan TypeScript |
+| npm run lint | Lulus, exit 0 |
+| npm run test:unit | Lulus, exit 0; **81 tes / 6 berkas** |
+| npm run build | Lulus, exit 0; compile, TypeScript, prerender |
+| npx playwright install chromium | Lulus, exit 0; browser dikelola Playwright |
+| npm run test:e2e | Lulus, exit 0; **27 skenario / 7,1 menit**, termasuk seluruh 22 baseline |
+| Gerbang dokumentasi/whitespace/integritas | Hasil akhir lengkap di [laporan penutupan](penutupan-teknis-tahap-1.md) |
 
-## Pemetaan penerimaan
+Enam probe CLI Next menolak staging, production, dan setiap provider non-mock dengan pesan validator yang sesuai. Semua E2E memblokir dan mengassert request HTTP/WebSocket keluar origin lokal; tidak ada upaya layanan nyata pada alur yang diuji. Sebelum/sesudah build dan E2E, hash **71 berkas tracked tetap sama**, termasuk seluruh screenshot dokumentasi. next-env.d.ts merupakan file generated ignored, tidak lagi tracked.
 
-| ID | Bukti implementasi/pengujian |
-| --- | --- |
-| T1-01 | Startup Next.js, navigasi buku/sesi/editor, HTTP lokal |
-| T1-02 | Cerita cukup → draf, 4 kredit untuk cerita bebas; tanpa pertanyaan otomatis setelah draf |
-| T1-03 | Pertanyaan keempat tetap menunggu; jumlah pertanyaan maksimal empat |
-| T1-04 | Dua skip kosong berhenti tanpa biaya; satu jawaban lalu dua skip mempertahankan jawaban dan buffer |
-| T1-05 | Respons bertumpuk ditolak dan diganti pertanyaan katalog satu fokus |
-| T1-06 | Respons melewati jeda tidak menghidupkan sesi atau menagih |
-| T1-07 | Refresh pertanyaan kedua memulihkan fokus, buffer, jawaban dan 1 kredit yang sudah terpakai |
-| T1-08 | Sumber dan usulan tetap terpisah; naskah belum berubah sebelum penerapan |
-| T1-09 | Konflik versi menahan overwrite; simpan usulan terpisah mempertahankan bagian asli |
-| T1-10 | Tokoh diri/pending, pratinjau massal, nama pena terpisah; review nama lama dan judul |
-| T1-11 | no-AI tidak dikirim; manual masih boleh; no-book menahan ekspor contoh; nama ambigu ditahan |
-| T1-12 | 4/5/0 kredit, editor saat saldo nol, top-up contoh tidak melanjutkan otomatis |
-| T1-13 | Penyimpanan gagal menunjukkan status gagal dan salinan penyelamatan; tidak mengaku berhasil |
-| T1-14 | Screenshot laptop/HP, overflow viewport, keyboard dan mode baca; batas emulasi tercatat |
-| T1-15 | Build, typecheck, lint, unit dan browser test dalam tabel hasil akhir |
-| T1-16 | Klik ganda kirim dan aksi/respons berversi yang sama tidak menggandakan jawaban/biaya |
+CI minimum tersedia sebagai workflow lokal dengan contents:read, mock/development, Node dari .node-version, tanpa secret atau deployment. CI GitHub/Linux **belum dijalankan** dan tidak dinyatakan lulus berdasarkan pengujian Windows.
 
-Pemetaan ini menunjuk cakupan tes; keputusan lulus mengikuti hasil eksekusi di atas. Jaminan transaksi lintas proses bukan cakupan prototipe. Kontras teks warna inti terhadap latar diuji minimal 4,5:1; ini bukan audit WCAG menyeluruh. Viewport 320, 360, 390, 768, 1024 dan 1440 px diperiksa tanpa overflow horizontal pada alur yang diuji.
+## Bukti dan cakupan
 
-## Bukti visual
+Regresi mencakup batas pertanyaan, buffer, jeda/refresh, respons terlambat/gagal, saldo nol, konflik revisi, format editor, no-AI/no-book, nama pena/tokoh, review privasi, keyboard, dan viewport 320–1440 px. Penutupan menambah migrasi seed utuh/edited/ID sama, snapshot aktif rusak, pilihan identitas, dan tanggal simulasi generik. Uji tema keluarga, karier dan usaha memakai data sintetis.
 
-| Alur | Laptop 1440 × 900 | HP 390 × 844 |
-| --- | --- | --- |
-| Buku saya | [Buku laptop](bukti-tahap-1/01-buku-desktop.png) | [Buku HP](bukti-tahap-1/04-buku-hp.png) |
-| Sesi cerita | [Sesi laptop](bukti-tahap-1/02-sesi-desktop.png) | [Sesi HP](bukti-tahap-1/05-sesi-hp.png) |
-| Editor | [Editor laptop](bukti-tahap-1/03-editor-desktop.png) | [Editor HP](bukti-tahap-1/06-editor-hp.png) |
+Screenshot di docs/bukti-tahap-1 dan docs/bukti-onboarding adalah bukti historis yang ditetapkan pada 10 September 2026; gambar fixture Jepang bukan default produk. Run normal tidak memperbaruinya. UPDATE_E2E_EVIDENCE=1 diperlukan untuk pembaruan sengaja, yang harus ditinjau. Laporan HTML, screenshot gagal dan trace berada pada folder ignored.
 
-Tangkapan utama memakai `fullPage`, sehingga tinggi berkas dapat melebihi viewport; dialog privasi memakai viewport. Animasi dinonaktifkan saat pengambilan agar transisi ukuran layar tidak tertangkap di tengah gerakan. Tambahan: [pratinjau privasi](bukti-tahap-1/07-privasi-preview.png), [provider gagal](bukti-tahap-1/08-respons-gagal.png), [buku kosong](bukti-tahap-1/09-buku-kosong.png), serta [proses berjalan](bukti-tahap-1/10-proses-berjalan.png).
+## Batas penerimaan
 
-Pemasangan npm berhasil dengan 0 kerentanan pada saat instalasi. Tes yang memerlukan child process dijalankan setelah sandbox awal menolak spawn dengan EPERM. Build menampilkan peringatan bahwa lockfile di folder induk pengguna diabaikan karena di luar repository; lockfile proyek tetap dipakai dan build berhasil. Berkas induk tersebut tidak diubah.
+Prototipe satu browser/tab lokal, belum memiliki login, database, RLS, pemetaan privat server, ledger/transaksi nyata, sinkronisasi, AI nyata, email, audio, Word, pembayaran, deployment atau layanan baru. Matcher hanya mengenali nama terdaftar; bukan jaminan anonimitas. Pilihan sumber dalam simulasi tidak membuktikan payload provider nyata.
 
-## Batas yang masih terbuka
+[Dokumen pilot manusia](panduan-pilot-tahap-1.md) meminta tugas ruang kosong, tiga jalur cerita, satu pertanyaan, Lewati/jeda/draf, pemisahan bahan/usulan/naskah, identitas, biaya simulasi, serta HP/laptop. Pemilik harus mencatat hasil pilot dan keputusan penerimaan. Gerbang teknis tidak menggantikan pilot atau menyatakan aplikasi produksi.
 
-- Pilot manusia: belum ada peserta; [panduan pilot](panduan-pilot-tahap-1.md) siap digunakan.
-- Pengujian memakai Chrome desktop dan ukuran viewport; keyboard virtual, lifecycle HP fisik, lintas browser, pembaca layar, dan zoom perangkat belum dibuktikan.
-- Auth, database, RLS, pemetaan privat server, job persisten, AI nyata/transkripsi, audio, sinkronisasi cloud, Word, backup proyek, pembayaran Duitku, email dan retensi tetap tahap berikutnya.
-- Belum ada hasil yang dikirim ke layanan eksternal atau deploy produksi. Mutu tulisan mock adalah susunan bahan verbatim dan tidak mewakili mutu AI nyata.
-
-Tahap 2 dimulai setelah hasil teknis ditinjau dan gerbang kenyamanan diselesaikan atau keputusan pemilik terhadap hasil pilot dicatat.
+Riwayat: commit 5e367b7 membangun prototipe awal dengan fixture, f944ea2 membuat onboarding kosong. Patch penutupan ini memperbaiki migrasi, portabilitas tes, CI dan dokumentasi. Empat dokumen induk tetap utuh; catatan Tahap 0 berada di [hasil verifikasi historis](hasil-verifikasi.md).

@@ -1,0 +1,46 @@
+name: Stage 1 local prototype
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      APP_ENV: development
+      DATA_PROVIDER: mock
+      AI_PROVIDER: mock
+      PAYMENT_PROVIDER: mock
+      EMAIL_PROVIDER: mock
+      ENABLE_TESTER_GRANTS: "false"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Use the declared npm version
+        run: npm install --global npm@11.19.0
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test:unit
+      - run: npm run build
+      - name: Install test browser (environment prerequisite)
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run check:discovery
+      - name: Verify whitespace and tracked-file stability
+        run: |
+          git diff --check
+          git diff --exit-code
+          test -z "$(git ls-files --others --exclude-standard)"

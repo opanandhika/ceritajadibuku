@@ -108,7 +108,7 @@ Dasar: blueprint baris 314–320, 337–349, 529–540; panduan baris 193–200,
 
 ## 7. Migrasi tokoh lama dan impor
 
-**Kondisi sekarang:** tidak ditemukan database, migration, data tokoh, atau cadangan aplikasi lama. Jumlah tokoh lama yang diidentifikasi untuk dimigrasikan: nihil. Belum ada migrasi/skrip impor yang dibuat atau dijalankan. Tidak perlu mengarang data lama agar Tahap 0 tampak memiliki migrasi.
+**Kondisi saat discovery Tahap 0:** tidak ditemukan database, migration, data tokoh, atau cadangan aplikasi lama. Jumlah tokoh lama yang diidentifikasi untuk dimigrasikan: nihil. Belum ada migrasi/skrip impor yang dibuat atau dijalankan. Tidak perlu mengarang data lama agar Tahap 0 tampak memiliki migrasi.
 
 Kebijakan rancangan bila data lama ditemukan pada tahap berikutnya:
 
@@ -167,3 +167,5 @@ Pilihan fisik enkripsi/kunci, serializer allowlist, format cadangan, algoritme m
 Kontrol lokal yang dibuat: pemisahan nama pena/tokoh diri/akun contoh; kartu pending; no-AI/no-book; penanda sebelum provider deterministik; pemeriksaan hasil sebelum biaya; revisi kebijakan/sumber; nama lama dan nama ambigu; pratinjau penyamaran massal termasuk diri; review judul dan teks sebelum ekspor contoh. Pengujian dan batasnya dicatat pada [laporan Tahap 1](laporan-tahap-1.md).
 
 Snapshot browser tetap memuat pemetaan sintetis. Belum ada tabel privat, autentikasi, RLS, enkripsi pemetaan, log akses atau sinkronisasi server. Matcher hanya mengenali sebutan terdaftar dan tidak menilai identifikasi dari konteks/foto/metadata. Review harus diulang setelah data berubah. Proyeksi ekspor hanya teks contoh dan tidak mengubah naskah utama.
+
+Pembaruan 11 September 2026: tersedia migrasi lokal dari demo:v1 ke workspace:v2, tanpa database/server. Seed yang persis utuh dikenali fingerprint gabungan; tulisan yang diedit dipertahankan. Alias pending yang tidak tercatat sebagai pernah dikonfirmasi dibersihkan, pilihan terkonfirmasi tetap, dan revisi privasi naik bila aturan alias berubah. Snapshot legacy asli tetap menjadi sumber recovery. Ini bukan migrasi akun/cloud atau bukti RLS; lihat [penutupan teknis](penutupan-teknis-tahap-1.md).

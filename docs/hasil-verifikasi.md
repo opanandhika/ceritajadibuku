@@ -1,6 +1,6 @@
 # Hasil verifikasi proyek
 
-Hasil aplikasi Tahap 1 tercatat di [laporan implementasi dan bukti pengujian](laporan-tahap-1.md). Catatan berikut dipertahankan sebagai baseline Tahap 0; pernyataan belum ada aplikasi/tes berlaku saat discovery tersebut.
+Hasil aplikasi Tahap 1 terkini tercatat di [laporan penutupan teknis](penutupan-teknis-tahap-1.md) dan [laporan implementasi](laporan-tahap-1.md). Catatan berikut dipertahankan sebagai baseline Tahap 0; pernyataan belum ada aplikasi/tes berlaku saat discovery tersebut.
 
 # Hasil verifikasi Tahap 0
 

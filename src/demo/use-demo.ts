@@ -37,14 +37,16 @@ export function useDemo() {
   }, [persist]);
   useEffect(() => {
     let live = true;
-    Promise.resolve().then(() => {
+    const loadingGeneration = generation.current;
+    Promise.resolve().then(async () => {
       if (!live) return;
-      let result: ReturnType<typeof loadDemo>;
+      let result: Awaited<ReturnType<typeof loadDemo>>;
       try {
         setHasPrevious(window.localStorage.getItem(PREVIOUS_STORAGE_KEY) !== null);
-        result = loadDemo(window.localStorage);
+        result = await loadDemo(window.localStorage);
       }
       catch { result = { kind: "error", message: "Penyimpanan perangkat tidak tersedia. Tulisan hanya berada di memori sampai dapat disimpan." }; }
+      if (!live || generation.current !== loadingGeneration) return;
       if (result.kind === "ok") {
         state.current = result.value;
         setDemo(result.value);

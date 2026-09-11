@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 
 // Read-only discovery helper: no subprocess, network call, dotenv loading, or writes.
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -26,6 +27,7 @@ const documentation = [
   "docs/laporan-tahap-1.md",
   "docs/panduan-pilot-tahap-1.md",
   "docs/penyesuaian-onboarding.md",
+  "docs/penutupan-teknis-tahap-1.md",
 ];
 const inputs = [
   "blueprint(3).md",
@@ -40,6 +42,14 @@ console.log(`INFO Runtime aktual: ${process.version}`);
 
 for (const name of [...inputs, ...documentation, ".gitignore", ".editorconfig", ".node-version", ".env.example"]) {
   report(nonemptyFile(resolve(root, name)), `Berkas tersedia: ${name}`);
+}
+
+const baseline = readFileSync(resolve(root, "docs/hasil-verifikasi.md"), "utf8");
+for (const name of inputs) {
+  const row = baseline.split(/\r?\n/u).map((line) => line.split("|").map((part) => part.trim().replaceAll("`", ""))).find((parts) => parts[1] === name);
+  const expected = row?.[2];
+  const actual = createHash("sha256").update(readFileSync(resolve(root, name))).digest("hex").toUpperCase();
+  report(Boolean(expected && /^[A-F0-9]{64}$/u.test(expected) && actual === expected), `SHA-256 sesuai baseline Tahap 0: ${name}`);
 }
 
 let links = 0;

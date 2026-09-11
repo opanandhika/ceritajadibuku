@@ -12,4 +12,11 @@ describe("batas demo server", () => {
     expect(() => validateEnvironment({ AI_PROVIDER: "openai" })).toThrow();
     expect(() => validateEnvironment({ ENABLE_TESTER_GRANTS: "true" })).toThrow();
   });
+  it.each(["DATA_PROVIDER", "AI_PROVIDER", "PAYMENT_PROVIDER", "EMAIL_PROVIDER"])("menolak setiap adapter non-mock: %s", (key) => {
+    expect(() => validateEnvironment({ APP_ENV: "development", [key]: "real-provider" })).toThrow(`${key}: hanya adapter mock`);
+  });
+  it("menerima default lokal dan konfigurasi mock eksplisit tanpa secret", () => {
+    expect(validateEnvironment({})).toEqual({ appEnv: "development", demo: true });
+    expect(validateEnvironment({ APP_ENV: "development", DATA_PROVIDER: "mock", AI_PROVIDER: "mock", PAYMENT_PROVIDER: "mock", EMAIL_PROVIDER: "mock", ENABLE_TESTER_GRANTS: "false" }).demo).toBe(true);
+  });
 });

@@ -103,7 +103,7 @@ Keputusan ini tidak mengubah harga/kuota/privasi atau membolehkan integrasi prod
 
 Next.js App Router, React, TypeScript strict, Zod, Tiptap, Vitest, ESLint dan Playwright dipasang dengan versi pasti di package-lock.json. Domain sesi dan privasi berupa fungsi murni; React mengorkestrasi input, penyimpanan dan adapter mock. Versi paket aktual ada pada package.json. Panduan Next.js dibaca dari node_modules/next/dist/docs sesuai AGENTS.md yang dibuat oleh next dev.
 
-Navigasi prototipe memakai hash di satu route; URL sesi menyimpan ID. Ini keputusan lokal sementara, bukan arsitektur routing akun/server Tahap 2. localStorage menyimpan snapshot skema v1 dan data sintetis; seluruh aplikasi demo dibatasi validator APP_ENV=development. Build optimal lokal tetap boleh menggunakan NODE_ENV=production.
+Navigasi prototipe memakai hash di satu route; URL sesi menyimpan ID. Ini keputusan lokal sementara, bukan arsitektur routing akun/server Tahap 2. localStorage menyimpan snapshot isi formatVersion 1 pada key aktif `ceritajadibuku:workspace:v2`; ruang pengguna baru kosong, sedangkan `ceritajadibuku:demo:v1` hanya legacy/recovery; seluruh aplikasi demo dibatasi validator APP_ENV=development. Build optimal lokal tetap boleh menggunakan NODE_ENV=production.
 
 ## 011 — Penolakan hasil usang dan pemisahan naskah
 
@@ -116,3 +116,11 @@ Bahan asal, draf dan bagian diterima tidak saling menimpa. Penerapan membandingk
 Mode no-book dikeluarkan dari generasi bersama no-AI; izin konteks terpisah belum dibangun. Identitas diproyeksikan ke penanda sebelum adapter; hasil bernama terlarang atau berpenanda tak dikenal ditolak sebelum biaya draf. Review meliputi judul buku/bagian, naskah, nama pena, nama lama yang diketahui, dan relasi sumber.
 
 Pencocokan nama satu lintasan memakai nama terpanjang secara global. Sebutan yang menunjuk beberapa tokoh ditahan, tidak dipilih berdasarkan urutan kartu. Atur nanti tidak mengonfirmasi nama yang baru diketik. Pratinjau ekspor dan penyamaran tidak merupakan sertifikasi anonimitas atau ekspor Word nyata. Lihat laporan Tahap 1 untuk pengujian dan batasnya.
+
+## 013 — Penutupan teknis Tahap 1, 11 September 2026
+
+Migrasi legacy v1 dipisah ke modul berversi. SHA-256 atas canonical JSON buku mentah lengkap mengenali hanya seed historis yang belum berubah. Setiap edit mempertahankan buku; literal judul/nama tidak menjadi aturan penghapusan. Snapshot asal tidak dimutasi, dan pilihan identitas terkonfirmasi dipertahankan. Fingerprinting asynchronous dilindungi lifecycle/generation sebelum hasil load diterapkan. Rincian pada [onboarding](penyesuaian-onboarding.md).
+
+Chromium Playwright menjadi default; Chrome sistem opt-in. Server E2E khusus port 3100 tidak memakai server yang kebetulan sudah hidup. Jaringan tes dibatasi ke origin lokal, dan screenshot dokumentasi opt-in. CI berizin contents:read menjalankan mock/development tanpa secrets/deployment. next-env.d.ts tidak dilacak sesuai panduan Next.js; typecheck diawali next typegen.
+
+Utang teknis: workspace.tsx masih memuat banyak tampilan. Pemecahan besar ditunda agar penutupan Tahap 1 tidak berubah menjadi refactor fitur. Status keseluruhan tetap pilot_pending; [laporan penutupan](penutupan-teknis-tahap-1.md) mencatat gerbang aktual.

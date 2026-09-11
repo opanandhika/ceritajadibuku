@@ -1,6 +1,6 @@
 # Panduan operasional awal
 
-Status 10 September 2026: prototipe Tahap 1 tersedia secara lokal. Belum ada database, deployment, scheduler, transaksi nyata atau cadangan layanan. Prosedur produksi di bawah masih kebutuhan tahap berikut.
+Status 11 September 2026: prototipe Tahap 1 tersedia secara lokal. Belum ada database, deployment, scheduler, transaksi nyata atau cadangan layanan. Prosedur produksi di bawah masih kebutuhan tahap berikut.
 
 ## Operasi lokal yang tersedia
 
@@ -15,7 +15,13 @@ git status --short
 
 Instalasi memakai lockfile. Server mengikat loopback 127.0.0.1; hentikan dengan Ctrl+C. Tidak perlu menyalin `.env.example`. Jika port 3000 dipakai, ikuti URL yang dicetak atau hentikan proses proyek yang memang dimaksud. Untuk build lokal gunakan `npm.cmd run build`, lalu `npm.cmd run start`. Baca [README](../README.md) dan [laporan](laporan-tahap-1.md).
 
-Snapshot browser memakai key `ceritajadibuku:workspace:v2`; pilih satu tab kerja. Bila penyimpanan gagal, salin melalui Selamatkan tulisan sebelum menutup halaman. Kosongkan data lokal mengosongkan buku dan riwayat setelah pilihan eksplisit; tidak ada pemulihan buku contoh. Namespace lama `ceritajadibuku:demo:v1` hanya menjadi sumber migrasi pertama dan salinan penyelamatan teks. Buku bawaan ber-ID `jepang` tidak ikut ke daftar; buku buatan pengguna dipertahankan dan saldo/riwayat simulasi direset. Salin tulisan lama melalui Pengaturan demo → Salin tulisan dari prototipe sebelumnya. Snapshot lama tidak ditimpa. Rincian ada pada [penyesuaian onboarding](penyesuaian-onboarding.md). Memulihkan saldo demo tidak otomatis melanjutkan proses.
+Snapshot browser memakai key `ceritajadibuku:workspace:v2`; pilih satu tab kerja. Bila penyimpanan gagal, salin melalui Selamatkan tulisan sebelum menutup halaman. Kosongkan data lokal mengosongkan buku dan riwayat setelah pilihan eksplisit; tidak ada pemulihan buku contoh. Namespace lama `ceritajadibuku:demo:v1` hanya menjadi sumber migrasi pertama dan salinan penyelamatan teks. Fingerprint SHA-256 seluruh buku mentah mengenali seed historis yang masih persis sama; hanya seed utuh yang tidak ikut ke daftar. Buku yang sudah diedit atau kebetulan memiliki ID/nama sama tetap dipertahankan. Alias pending tanpa bukti konfirmasi dibersihkan secara generik; sumber/naskah tidak ditulis ulang. Saldo/riwayat simulasi direset. Salin tulisan lama melalui Pengaturan demo → Salin tulisan dari prototipe sebelumnya. Snapshot lama tidak ditimpa atau dihapus. Snapshot v2 yang sudah ada selalu diprioritaskan, termasuk setelah reset; versi baru tidak mengimpor ulang buku yang pernah dikeluarkan versi sebelumnya. Tulisan itu tetap tersedia melalui salinan recovery. Rincian ada pada [penyesuaian onboarding](penyesuaian-onboarding.md). Memulihkan saldo demo tidak otomatis melanjutkan proses.
+
+## Pengujian dari checkout bersih
+
+Jalankan `npm ci`, `npx playwright install chromium`, lalu seluruh gerbang pada [README](../README.md). Chromium adalah default; `PLAYWRIGHT_CHANNEL=chrome` hanya pilihan untuk Chrome sistem. Port pengujian khusus `127.0.0.1:3100` harus kosong. Masalah instalasi browser dicatat sebagai masalah lingkungan. Laporan dan trace berada di direktori ignored, screenshot dokumentasi hanya diperbarui dengan `UPDATE_E2E_EVIDENCE=1`.
+
+`next-env.d.ts` merupakan keluaran generated yang tidak dilacak. `npm run typecheck` membuat tipe melalui `next typegen` dari checkout tanpa cache. CI minimum telah disiapkan untuk menjalankan gerbang lokal dengan mock; eksekusi GitHub belum dilakukan. Hasil aktual dan status pilot ada di [laporan penutupan](penutupan-teknis-tahap-1.md).
 
 ## Pemetaan environment yang direncanakan
 

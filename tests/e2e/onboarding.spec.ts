@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { captureEvidence } from "../fixtures/evidence";
+import { expect, test, type Page } from "../fixtures/test";
 import { exampleDemo } from "../fixtures/demo";
 import { newBook } from "../../src/demo/seed";
 import { STORAGE_KEY, PREVIOUS_STORAGE_KEY } from "../../src/demo/storage";
@@ -20,11 +20,10 @@ test("ruang baru kosong, judul dapat menyusul, nama mengikuti pilihan pengguna",
   expect(await state(page)).toMatchObject({ books: [], credits: 150, events: [] });
   await expect(page.getByRole("button", { name: "Buat buku", exact: true })).toHaveCount(1);
   await expect(page.getByText(/Langkah Menuju Jepang|Nara|Citra Senja|Buku contoh|Lihat contoh/)).toHaveCount(0);
-  await mkdir(evidence, { recursive: true });
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `${evidence}/kosong-${width}.png`, fullPage: true, animations: "disabled" });
+    await captureEvidence(page, `${evidence}/kosong-${width}.png`, true);
   }
   await createBook(page);
   await expect(page.getByRole("heading", { name: "Buku tanpa judul", exact: true })).toBeVisible();
@@ -50,7 +49,7 @@ test("ruang baru kosong, judul dapat menyusul, nama mengikuti pilihan pengguna",
   await page.getByRole("button", { name: "Tambahkan cerita", exact: true }).click();
   for (const label of ["Awal sebuah mimpi", "Pengalaman yang membekas", "Seseorang yang penting"]) await expect(page.getByRole("radio", { name: new RegExp(label) })).toBeVisible();
   for (const label of ["Tulis topik sendiri", "Langsung bercerita"]) await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
-  await page.screenshot({ path: `${evidence}/saran-umum.png`, fullPage: true, animations: "disabled" });
+  await captureEvidence(page, `${evidence}/saran-umum.png`, true);
   await page.reload(); book = (await state(page)).books[0];
   expect(book).toMatchObject({ title: "Cerita pilihanku", authorName: "Senja Pagi" });
   expect(book.characters[0]).toMatchObject({ alias: "Pelangi", displayName: "Pelangi" });
@@ -84,9 +83,8 @@ for (const [theme, opening, question] of [
   expect(value.credits).toBe(145); expect(value.events).toHaveLength(2);
 });
 
-test("buku bawaan lama dihapus dari ruang buku, buku pengguna dan salinan tulisan lama tetap utuh", async ({ page }) => {
+test("seed legacy utuh tidak tampil, buku pengguna dan salinan tulisan lama tetap utuh", async ({ page }) => {
   const old = exampleDemo();
-  old.books[0].sections[0].text = "Tulisan pengguna di prototipe lama.";
   const own = newBook("mine", "Catatan keluargaku");
   own.characters[0].alias = "Nara"; // Unchosen default in the previous implementation.
   old.books.push(own); old.credits = 80; old.events.push({ id: "old", label: "Simulasi lama", amount: -70 });
@@ -101,7 +99,7 @@ test("buku bawaan lama dihapus dari ruang buku, buku pengguna dan salinan tulisa
   expect(value.credits).toBe(150); expect(value.events).toEqual([]);
   await openSettings(page);
   await page.getByRole("button", { name: "Salin tulisan dari prototipe sebelumnya", exact: true }).click();
-  await expect(page.getByLabel("Salinan tulisan", { exact: true })).toHaveValue(/Tulisan pengguna di prototipe lama/);
+  await expect(page.getByLabel("Salinan tulisan", { exact: true })).toHaveValue(/Keinginan sekolah di Jepang/);
   await closeDialog(page); await page.reload();
   await expect(page.getByText("Langkah Menuju Jepang", { exact: true })).toHaveCount(0);
   expect(await page.evaluate((key) => localStorage.getItem(key), PREVIOUS_STORAGE_KEY)).toBe(raw);
@@ -126,6 +124,8 @@ test("tiga slot seluruhnya tersedia untuk buku pengguna", async ({ page }) => {
 });
 
 test("reset saat respons terlambat tetap kosong setelah respons dan refresh", async ({ page }) => {
+  const old = exampleDemo(); old.books = [newBook("old-user-book", "Buku lama pengguna")];
+  await page.addInitScript(({ key, value }) => { localStorage.setItem(key, value); }, { key: PREVIOUS_STORAGE_KEY, value: JSON.stringify(old) });
   await page.goto("/"); await createBook(page);
   await openSettings(page); await page.getByLabel("Skenario provider").selectOption("late"); await closeDialog(page);
   await page.getByRole("button", { name: "Tambahkan cerita", exact: true }).click();
@@ -141,4 +141,54 @@ test("reset saat respons terlambat tetap kosong setelah respons dan refresh", as
   await page.reload();
   await expect(page.getByRole("heading", { name: "Buku pertamamu dimulai dari satu cerita." })).toBeVisible();
   expect(await state(page)).toMatchObject({ books: [], activeBookId: "", credits: 150, events: [] });
+});
+
+test("seed yang sudah diedit tetap menjadi buku pengguna dan semua tulisan dapat disalin", async ({ page }) => {
+  const old = exampleDemo(); const book = old.books[0];
+  book.sections[0].text = "Catatan sintetis tentang awal karier yang ditulis pengguna.";
+  book.authorName = "Pena Pilihan";
+  Object.assign(book.characters[0], { displayName: "Awan", alias: "Awan", mode: "pseudonym", knownNames: ["Awan"] });
+  const raw = JSON.stringify(old);
+  await page.addInitScript(({ key, raw }) => { localStorage.setItem(key, raw); }, { key: PREVIOUS_STORAGE_KEY, raw });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Buka buku", exact: true }).click();
+  await page.getByRole("button", { name: "Naskah", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Isi naskah", exact: true })).toContainText(book.sections[0].text);
+  const migrated = (await state(page)).books[0];
+  expect(migrated.authorName).toBe("Pena Pilihan");
+  expect(migrated.characters[0].alias).toBe("Awan");
+  await openSettings(page);
+  await page.getByRole("button", { name: "Salin tulisan dari prototipe sebelumnya", exact: true }).click();
+  await expect(page.getByLabel("Salinan tulisan", { exact: true })).toHaveValue(/awal karier yang ditulis pengguna/);
+  expect(await page.evaluate((key) => localStorage.getItem(key), PREVIOUS_STORAGE_KEY)).toBe(raw);
+});
+
+test("ID sama tidak menghapus buku non-demo dan alias pending tidak dikonfirmasi otomatis", async ({ page }) => {
+  const old = exampleDemo(); const book = newBook("jepang", "Pengalaman membangun usaha");
+  book.authorName = "Pena Usaha"; book.characters[0].alias = "Samaran dari versi lama";
+  book.sections[0].text = "Tulisan sintetis dari buku buatan pengguna.";
+  old.books = [book];
+  await page.addInitScript(({ key, value }) => { localStorage.setItem(key, value); }, { key: PREVIOUS_STORAGE_KEY, value: JSON.stringify(old) });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: book.title, exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Tokoh & privasi", exact: true }).click();
+  await page.getByRole("button", { name: "Lihat pratinjau", exact: true }).click();
+  await expect(page.getByLabel("Nama di sampul yang akan dipakai")).toHaveValue("Pena Usaha");
+  await expect(page.getByRole("dialog")).not.toContainText("Samaran dari versi lama");
+  expect((await state(page)).books[0].sections).toEqual(book.sections);
+});
+
+for (const raw of ["", "{rusak"]) test(`snapshot aktif rusak dipertahankan tanpa migrasi: ${raw || "kosong"}`, async ({ page }) => {
+  await page.addInitScript(({ key, raw }) => { localStorage.setItem(key, raw); }, { key: STORAGE_KEY, raw });
+  await page.goto("/");
+  await expect(page.locator(".save-alert")).toContainText("Data lama belum ditimpa");
+  expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBe(raw);
+});
+
+test("kredit menjelaskan aturan simulasi tanpa tanggal akun tetap", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Kredit & langganan", exact: true }).click();
+  await expect(page.locator(".plan-card")).toContainText("satu bulan kalender sejak pembayaran terverifikasi");
+  await expect(page.locator(".topup-section")).toContainText("30 hari sejak pembayaran terverifikasi");
+  await expect(page.locator("#main")).not.toContainText(/September|Oktober|2026|09.00/);
 });

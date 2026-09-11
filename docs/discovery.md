@@ -1,5 +1,7 @@
 # Discovery Tahap 0
 
+> Catatan historis Tahap 0. Kondisi aplikasi, migrasi browser dan gerbang terbaru ada di [laporan penutupan teknis Tahap 1](penutupan-teknis-tahap-1.md); pernyataan belum ada kode/legacy di bawah berlaku pada pemeriksaan awal.
+
 Tanggal pemeriksaan: 10 September 2026. Lokasi: `C:\Users\user\Documents\CeritaJadiBuku`.
 
 ## Mandat dan sumber

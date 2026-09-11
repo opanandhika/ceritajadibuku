@@ -1,6 +1,6 @@
 # CeritaJadiBuku
 
-Pendamping menulis pengalaman hidup menjadi buku. Tahap 0 selesai; **prototipe lokal Tahap 1 sudah diimplementasikan**. Pilot kenyamanan manusia masih menunggu pelaksanaan. AI, kredit, dan pembayaran memakai simulasi. Ruang buku baru selalu kosong; tidak ada buku contoh di aplikasi.
+Pendamping menulis pengalaman hidup menjadi buku. Tahap 0 selesai; **Tahap 1 teknis siap untuk pilot manusia; pilot_pending**. Tahap 1 belum selesai sepenuhnya; pilot kenyamanan manusia tetap `pilot_pending`. AI, kredit, dan pembayaran memakai simulasi. Ruang buku baru selalu kosong; tidak ada buku contoh di aplikasi.
 
 ## Menjalankan
 
@@ -19,13 +19,15 @@ Untuk build optimal yang tetap dijalankan lokal, hentikan dev lalu jalankan `npm
 
 Pilih **Buat buku** dari ruang kosong → isi judul atau biarkan **Buku tanpa judul** → Tambahkan cerita → pilih saran umum, Tulis topik sendiri, atau Langsung bercerita → kirim jawaban → tinjau draf → Gunakan di naskah. Judul dapat diubah melalui **Ubah judul**. Nama pena dan nama tokoh ditentukan pengguna. Bahan asal, usulan, dan naskah diterima terpisah. Menu Tokoh & privasi menyediakan tokoh diri, nama pena, penanda pending, dan pratinjau penyamaran. Tinjau privasi buku membuka ekspor contoh tanpa membuat Word.
 
-Pengaturan demo menyediakan enam skenario provider, saldo nol/tambah contoh, gagal simpan, dan reset eksplisit. Saldo contoh mulai dari 150; tidak ada transaksi uang. Snapshot berada di `localStorage` dengan key `ceritajadibuku:workspace:v2`, pada browser yang sama, satu tab kerja. Pembaruan menghapus buku bawaan lama dari daftar dan mempertahankan buku lain; saldo serta riwayat simulasi dimulai ulang. Tulisan dari prototipe lama tetap dapat disalin melalui Pengaturan demo. Saat gagal simpan, gunakan **Selamatkan tulisan** sebelum meninggalkan halaman. Salinan teks tersebut bukan cadangan proyek.
+Pengaturan demo menyediakan enam skenario provider, saldo nol/tambah contoh, gagal simpan, dan reset eksplisit. Saldo contoh mulai dari 150; tidak ada transaksi uang. Snapshot berada di `localStorage` dengan key `ceritajadibuku:workspace:v2`, pada browser yang sama, satu tab kerja. Migrasi mengeluarkan hanya seed historis yang seluruh isi dan metadatanya identik. Buku yang sudah diedit atau sekadar memiliki ID/nama sama tetap dipertahankan; saldo serta riwayat simulasi dimulai ulang. Tulisan dari prototipe lama tetap dapat disalin melalui Pengaturan demo. Saat gagal simpan, gunakan **Selamatkan tulisan** sebelum meninggalkan halaman. Salinan teks tersebut bukan cadangan proyek.
 
 Gunakan data sintetis. Prototipe belum memiliki login, pemisahan pemetaan privat server, cloud, AI nyata, audio, ekspor Word, atau pembayaran Duitku. Snapshot lokal bukan penyimpanan produksi.
 
 ## Pemeriksaan
 
 ```powershell
+npm.cmd ci
+npx.cmd playwright install chromium
 npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run test:unit
@@ -34,10 +36,17 @@ npm.cmd run build
 npm.cmd run check:discovery
 ```
 
-Tes browser memakai Google Chrome yang terpasang. Playwright dapat memulai server lokal sendiri pada port 3000. Laporan HTML ada di `playwright-report`; bukti onboarding baru ada di `docs/bukti-onboarding`. Data buku sintetis hanya dimuat secara eksplisit oleh tes di `tests/fixtures`; screenshot regresi fixture ada di `docs/bukti-tahap-1`. Pemeriksaan discovery hanya memeriksa artefak dan konfigurasi, bukan pengganti tes aplikasi.
+Default tes memakai Chromium yang dikelola Playwright. Pada Linux CI, pasang lewat `npx playwright install --with-deps chromium`. Kegagalan unduh/pemasangan browser adalah kegagalan prasyarat lingkungan, bukan bukti kegagalan logika aplikasi. Untuk Chrome sistem yang sudah terpasang, PowerShell: `$env:PLAYWRIGHT_CHANNEL = "chrome"; npm.cmd run test:e2e`; setelah itu `Remove-Item Env:PLAYWRIGHT_CHANNEL`. Linux/macOS: `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`.
+
+Playwright memulai server miliknya sendiri di `http://127.0.0.1:3100`; pastikan port tersebut kosong. Server yang sudah berjalan tidak dipakai ulang. Semua tes memblokir dan melaporkan upaya request HTTP/WebSocket keluar origin lokal. Server manual tetap memakai port 3000.
+
+Laporan HTML, screenshot gagal, dan trace berada di `playwright-report/` serta `test-results/`, keduanya diabaikan Git. Run biasa tidak menulis ke `docs/bukti-*`. Bukti dokumentasi yang sudah ada adalah rekaman historis sintetis; pembaruan disengaja memakai `UPDATE_E2E_EVIDENCE=1` dan harus ditinjau sebelum dimasukkan ke commit. Fixture buku hanya di `tests/fixtures`, dimuat secara eksplisit oleh tes.
+
+`npm run typecheck` menjalankan `next typegen` sebelum TypeScript. `next-env.d.ts` dan `.next` dihasilkan otomatis dan diabaikan Git. Workflow [CI Tahap 1](.github/workflows/stage-1.yml) menjalankan seluruh gerbang dengan Node dari `.node-version`, mock/development, izin `contents: read`, tanpa secret dan tanpa deployment. Workflow baru ini belum dijalankan di GitHub; pekerjaan ini tidak melakukan push. Pemeriksaan discovery hanya memeriksa artefak dan konfigurasi, bukan pengganti tes aplikasi.
 
 ## Dokumentasi kerja
 
+- [Laporan penutupan teknis dan hasil gerbang terbaru](docs/penutupan-teknis-tahap-1.md)
 - [Penyesuaian onboarding dan penghapusan buku contoh](docs/penyesuaian-onboarding.md)
 - [Laporan Tahap 1, bukti dan batas pengujian](docs/laporan-tahap-1.md)
 - [Panduan pilot manusia — belum dilakukan](docs/panduan-pilot-tahap-1.md)

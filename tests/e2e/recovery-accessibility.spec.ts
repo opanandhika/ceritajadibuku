@@ -1,5 +1,6 @@
+import { captureEvidence } from "../fixtures/evidence";
 import { installTestBook } from "../fixtures/browser";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "../fixtures/test";
 
 async function state(page: Page) { return page.evaluate(() => JSON.parse(localStorage.getItem("ceritajadibuku:workspace:v2")!)); }
 async function demo(page: Page) { await page.getByRole("button", { name: "Pengaturan demo", exact: true }).click(); }
@@ -111,5 +112,5 @@ test("keyboard, mode baca, keadaan kosong, dan layar tambahan pada lebar sempit"
   await demo(page); await page.getByRole("button", { name: "Kosongkan data lokal", exact: true }).click();
   await page.getByRole("button", { name: "Kosongkan buku", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Buku pertamamu dimulai dari satu cerita." })).toBeVisible();
-  await page.screenshot({ path: "docs/bukti-tahap-1/09-buku-kosong.png", fullPage: true, animations: "disabled" });
+  await captureEvidence(page, "docs/bukti-tahap-1/09-buku-kosong.png", true);
 });
